@@ -20,18 +20,17 @@ Future<void> main() async {
           apiKey: "AIzaSyAaD8NiMUzwleH6d81lls9_Kby8yqHzKP0",
           appId: '1:1078440827221:web:b47ebb68f51153d2ef77dc',
           messagingSenderId: '1078440827221',
-          projectId: 'news-8e2c1'));
+          projectId: 'news-8e2c1',
+          storageBucket: 'news-8e2c1.appspot.com'));
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget
- {
+class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
- 
- @override
+
+  @override
   Widget build(BuildContext context) {
-    return ResponsiveSizer(builder: (context, orientation, screenType) 
-    {
+    return ResponsiveSizer(builder: (context, orientation, screenType) {
       return StreamProvider<InternetConnectionStatus>(
         initialData: InternetConnectionStatus.connected,
         create: (_) {

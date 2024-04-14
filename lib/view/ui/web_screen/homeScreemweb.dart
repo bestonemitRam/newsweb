@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -608,24 +609,20 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all(Colors.amber)),
-                              onPressed: () {
+                              onPressed: () async {
                                 if (controller.formKey.currentState!
                                     .validate()) {
                                   if (controller.selectedValue.value.trim() ==
-                                      "Select Language") 
-                                      {
+                                      "Select Language") {
                                     Fluttertoast.showToast(
                                         msg: "Please select language!",
                                         toastLength: Toast.LENGTH_SHORT,
                                         gravity: ToastGravity.TOP,
                                         timeInSecForIosWeb: 1,
                                         fontSize: 16.0);
-                                 
                                   } else if (controller.selectedtype.value
                                           .trim() ==
-                                      "Select Type") 
-                                      {
-                                    
+                                      "Select Type") {
                                     Fluttertoast.showToast(
                                         msg: "Please select news type!",
                                         toastLength: Toast.LENGTH_SHORT,
@@ -633,12 +630,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         timeInSecForIosWeb: 1,
                                         fontSize: 16.0);
                                   }
-
-                                  //   controller.addData();
+                                  controller.addData();
                                 }
-
-                                // Navigator.pushNamed(
-                                //     context, Routes.dashBoardScreenActivity);
                               },
                               child: SizedBox(
                                   height: 50,

@@ -7,16 +7,23 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firabase_storage;
+import 'package:http/http.dart' as http;
+
 class RetailerController extends GetxController {
   Rx<File?> imageFile = Rx<File?>(null);
+  String selectedFile = '';
 
   Rx<Uint8List?> imageBytes = Rx<Uint8List?>(null);
   Rx<Uint8List?> imageVideo = Rx<Uint8List?>(null);
-
+  late Uint8List selectedImageInBytes;
 
   Future<void> pickImage() async {
     final picker = ImagePicker();
@@ -35,12 +42,11 @@ class RetailerController extends GetxController {
           //allowedExtensions: ['jpg', 'jpeg', 'png'],
           );
 
-      if (result != null)
-       {
+      if (result != null) {
         // Get file
         final file = result.files.first.bytes;
-
-         
+        selectedFile = result.files.first.name;
+        selectedImageInBytes = result.files.first.bytes!;
 
         // Update imageBytes with the selected image
         imageBytes.value = file;
@@ -75,8 +81,6 @@ class RetailerController extends GetxController {
     }
   }
 
-  /////////////////////////////////////////
-
   TextEditingController titleController = TextEditingController();
   TextEditingController newsDescription = TextEditingController();
   TextEditingController referenceController = TextEditingController();
@@ -103,32 +107,54 @@ class RetailerController extends GetxController {
   ].obs;
   RxString selectedtype = 'Select News Type'.obs;
 
-  void addData() {
-    uploadImage(imageFile.value!);
-    // FirebaseFirestore.instance.collection('Trending').add({
-    //   'field1': 'value1',
-    //   'field2': 'value2',
-    //   // Add more fields as needed
-    // }).then((value) {
-    //   print("Data added successfully with ID: ${value.id}");
-    // }).catchError((error) {
-    //   print("Failed to add data: $error");
-    // });
+  Future<String> uploadFile() async {
+    String imageUrl = '';
+    try {
+      firabase_storage.UploadTask uploadTask;
+
+      firabase_storage.Reference ref = firabase_storage.FirebaseStorage.instance
+          .ref()
+          .child('product')
+          .child('/' + selectedFile);
+
+      final metadata =
+          firabase_storage.SettableMetadata(contentType: 'image/jpeg');
+
+      //uploadTask = ref.putFile(File(file.path));
+      uploadTask = ref.putData(selectedImageInBytes, metadata);
+
+      await uploadTask.whenComplete(() => null);
+      imageUrl = await ref.getDownloadURL();
+    } catch (e) {
+      print(e);
+    }
+    return imageUrl;
   }
 
-  final FirebaseStorage _storage = FirebaseStorage.instance;
-
-  Future<String?> uploadImage(File imageFile) async {
-    try {
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference reference = _storage.ref().child('images/$fileName');
-      UploadTask uploadTask = reference.putFile(imageFile);
-      TaskSnapshot snapshot = await uploadTask.whenComplete(() => null);
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      print('Error uploading image: $e');
-      return null;
-    }
+  Future<void> addData() async {
+    String imageUrl = await uploadFile();
+    FirebaseFirestore.instance.collection('shortnews').add({
+      'description': newsDescription.text,
+      'from': referenceController.text,
+      'img': imageUrl,
+      'language': selectedValue.value,
+      'news_link': referenceURLController.text,
+      'takenby': 'value2',
+      'title': titleController.text,
+      'video': 'value2',
+      "newsType": selectedtype.value,
+      "news_id":'',
+    }).then((value)
+     {
+        Fluttertoast.showToast(
+          msg: "Data added successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0);
+      print("Data added successfully with ID: ${value.id}");
+    }).catchError((error) {
+      print("Failed to add data: $error");
+    });
   }
 }
