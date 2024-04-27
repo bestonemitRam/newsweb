@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:js';
 import 'dart:typed_data';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -287,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Container(
                                   width: size.width * 0.80,
                                   // width: 20,
-                                  height: 55,
+
                                   padding: const EdgeInsets.only(left: 20),
                                   decoration: BoxDecoration(
                                       borderRadius: const BorderRadius.all(
@@ -404,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Container(
                                   width: size.width * 0.80,
                                   // width: 20,
-                                  height: 55,
+
                                   padding: const EdgeInsets.only(left: 20),
                                   decoration: BoxDecoration(
                                       borderRadius: const BorderRadius.all(
@@ -461,7 +462,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Container(
                                   width: size.width * 0.80,
                                   // width: 20,
-                                  height: 55,
+
                                   padding: const EdgeInsets.only(left: 20),
                                   decoration: BoxDecoration(
                                       borderRadius: const BorderRadius.all(
@@ -505,47 +506,106 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(
                                 height: 15,
                               ),
-                              Text(
-                                "     Contact",
-                                style: TextStyle(
-                                    color: AppHelper.themelight
-                                        ? Colors.white
-                                        : Colors.black,
-                                    fontSize: 14.sp),
-                              ),
-                              const SizedBox(
-                                height: 5,
+                              SizedBox(
+                                height: 2.h,
                               ),
                               Container(
-                                  width: size.width * 0.80,
-                                  // width: 20,
-                                  height: 55,
-                                  padding: const EdgeInsets.only(left: 20),
-                                  decoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(28)),
-                                      border: Border.all(
+                                width: size.width,
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton2<String>(
+                                    isExpanded: true,
+                                    hint: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.list,
+                                          size: 16.sp,
+                                          color: Colors.yellow,
+                                        ),
+                                        SizedBox(
+                                          width: 4.w,
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            'Select video or Image',
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.yellow,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    items: controller.type
+                                        .map((String item) =>
+                                            DropdownMenuItem<String>(
+                                              value: item,
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ))
+                                        .toList(),
+                                    value: controller.selectvideoOrImage.value,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        controller.selectvideoOrImage.value =
+                                            value!;
+                                      });
+                                    },
+                                    buttonStyleData: ButtonStyleData(
+                                      height: 50,
+                                      width: size.width * 0.30,
+                                      padding: const EdgeInsets.only(
+                                          left: 14, right: 14),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(
                                           color: AppHelper.themelight
                                               ? Colors.white
-                                              : Colors.black)),
-                                  child: Form(
-                                      child: TextFormField(
-                                    // controller: controller.mobileController,
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: 'Enter phone number ',
-                                        hintStyle: TextStyle(
-                                            color: AppHelper.themelight
-                                                ? Colors.white
-                                                : Colors.black,
-                                            fontSize: 14.sp)),
-                                    style: TextStyle(
-                                        color: AppHelper.themelight
-                                            ? Colors.white
-                                            : Colors.black,
-                                        fontSize: 14.sp),
-                                  ))),
+                                              : Colors.black26,
+                                        ),
+                                        color: Colors.redAccent,
+                                      ),
+                                      elevation: 2,
+                                    ),
+                                    iconStyleData: const IconStyleData(
+                                      icon: Icon(
+                                        Icons.arrow_drop_down,
+                                      ),
+                                      iconSize: 14,
+                                      iconEnabledColor: Colors.yellow,
+                                      iconDisabledColor: Colors.grey,
+                                    ),
+                                    dropdownStyleData: DropdownStyleData(
+                                      maxHeight: 200,
+                                      width: 200,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(14),
+                                        color: Colors.redAccent,
+                                      ),
+                                      offset: const Offset(-20, 0),
+                                      scrollbarTheme: ScrollbarThemeData(
+                                        radius: const Radius.circular(40),
+                                        thickness: MaterialStateProperty.all(6),
+                                        thumbVisibility:
+                                            MaterialStateProperty.all(true),
+                                      ),
+                                    ),
+                                    menuItemStyleData: const MenuItemStyleData(
+                                      height: 40,
+                                      padding:
+                                          EdgeInsets.only(left: 14, right: 14),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           SizedBox(
@@ -553,24 +613,30 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           Row(
                             children: [
-                              ElevatedButton(
-                                onPressed: () => controller.selectImage(),
-                                child: Padding(
-                                  padding: EdgeInsets.all(size.height * 0.02),
-                                  child: Text('Browse Image'),
+                              if (controller.selectvideoOrImage.value
+                                      .toString() ==
+                                  "Image")
+                                ElevatedButton(
+                                  onPressed: () => controller.selectImage(),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(size.height * 0.02),
+                                    child: Text('Browse Image '),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                width: 2.w,
-                              ),
-                              ElevatedButton(
-                                onPressed: () => controller.selectvideo(),
-                                child: Padding(
-                                  padding: EdgeInsets.all(size.height * 0.02),
-                                  child: Text('Browse video'),
+                              if (controller.selectvideoOrImage.value
+                                      .toString() ==
+                                  "Video")
+                                ElevatedButton(
+                                  onPressed: () => controller.selectvideo(),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(size.height * 0.02),
+                                    child: Text('Browse video'),
+                                  ),
                                 ),
-                              ),
                             ],
+                          ),
+                          SizedBox(
+                            height: 2.h,
                           ),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -590,16 +656,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               if (controller.fileName.value != '')
-                                SizedBox(
-                                  // height: 5.h,
-                                  width: 5.h,
+                                Container(
+                                  //width: size.width * 0.,
+                                  //height: size.height * 0.50,
+                                  child: Container(
+                                      child: Text(controller.fileName.value)),
                                 ),
-                              Container(
-                                //width: size.width * 0.,
-                                //height: size.height * 0.50,
-                                child: Container(
-                                    child: Text(controller.fileName.value)),
-                              ),
                             ],
                           ),
                           SizedBox(
@@ -629,8 +691,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                         gravity: ToastGravity.TOP,
                                         timeInSecForIosWeb: 1,
                                         fontSize: 16.0);
+                                  } else if (controller.selectvideoOrImage.value
+                                          .trim()
+                                          .toString() ==
+                                      "Select video or Image") {
+                                    Fluttertoast.showToast(
+                                        msg: "Please select image or video !",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.TOP,
+                                        timeInSecForIosWeb: 1,
+                                        fontSize: 16.0);
+                                  } else {
+                                    controller.addData(context);
                                   }
-                                  controller.addData();
                                 }
                               },
                               child: SizedBox(

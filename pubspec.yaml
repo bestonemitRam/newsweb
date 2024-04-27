@@ -72,6 +72,8 @@ dependencies:
   file_picker:
   change_app_package_name: ^1.1.0
   firebase_storage: ^11.7.1
+  loader_overlay: ^2.1.0
+  flutter_easyloading: ^3.0.5
   
  
 

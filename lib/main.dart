@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:newsweb/page_routes/route_generate.dart';
 import 'package:newsweb/page_routes/routes.dart';
 import 'package:newsweb/utils/apphelper.dart';
@@ -42,19 +43,38 @@ class MyApp extends StatelessWidget {
                 create: (_) => DarkThemeProvider()),
           ],
           child: Consumer<DarkThemeProvider>(builder: (context, value, child) {
-            return GetMaterialApp(
-              builder: (context, child) {
-                AppHelper.themelight = !value.darkTheme;
-                return MediaQuery(
-                  data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-                  child: child!,
-                );
-              },
-              title: 'ShoTnews',
-              debugShowCheckedModeBanner: false,
-              initialRoute: Routes.loginScreen,
-              onGenerateRoute: RouteGenerator.generateRoute,
-              theme: value.darkTheme ? lighttheme : darktheme,
+            return GlobalLoaderOverlay(
+              useDefaultLoading: false,
+              overlayOpacity: 0.1,
+              overlayColor: Colors.transparent,
+              overlayWidget: Center(
+                child: Container(
+                    height: 41,
+                    width: 41,
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const CircularProgressIndicator(
+                      color: Colors.black,
+                      strokeWidth: 3.5,
+                    )),
+              ),
+              child: GetMaterialApp(
+                builder: (context, child) {
+                  AppHelper.themelight = !value.darkTheme;
+                  return MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                    child: child!,
+                  );
+                },
+                title: 'ShoTnews',
+                debugShowCheckedModeBanner: false,
+                initialRoute: Routes.loginScreen,
+                onGenerateRoute: RouteGenerator.generateRoute,
+                theme: value.darkTheme ? lighttheme : darktheme,
+              ),
             );
           }),
         ),

@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firabase_storage;
 import 'package:http/http.dart' as http;
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:newsweb/utils/custom_alertDialog.dart';
 
 class RetailerController extends GetxController {
   Rx<File?> imageFile = Rx<File?>(null);
@@ -34,8 +37,6 @@ class RetailerController extends GetxController {
   }
 
   void selectImage() async {
-    // Select file
-
     if (kIsWeb) {
       final result = await FilePicker.platform.pickFiles(
           // type: FileType.custom,
@@ -43,18 +44,13 @@ class RetailerController extends GetxController {
           );
 
       if (result != null) {
-        // Get file
         final file = result.files.first.bytes;
         selectedFile = result.files.first.name;
         selectedImageInBytes = result.files.first.bytes!;
-
-        // Update imageBytes with the selected image
         imageBytes.value = file;
       } else {
-        // User canceled the picker
         print('User canceled image selection');
       }
-      // Handle web-specific behavior
     }
   }
 
@@ -70,16 +66,15 @@ class RetailerController extends GetxController {
         final fileanme = result.files.first;
         fileName.value = fileanme.name;
         final file = result.files.first.bytes;
-
-        // Update imageBytes with the selected image
-        //imageBytes.value = file;
+        selectedFile = result.files.first.name;
+        selectedImageInBytes = result.files.first.bytes!;
       } else {
-        // User canceled the picker
         print('User canceled image selection');
       }
-      // Handle web-specific behavior
     }
   }
+
+  RxBool isAddData = false.obs;
 
   TextEditingController titleController = TextEditingController();
   TextEditingController newsDescription = TextEditingController();
@@ -92,6 +87,13 @@ class RetailerController extends GetxController {
     'Hindi',
     'English',
   ].obs;
+  final List<String> type = [
+    'Select video or Image ',
+    'Image',
+    'Video',
+  ].obs;
+
+  RxString selectvideoOrImage = 'Select video or Image '.obs;
 
   RxString selectedValue = 'Select Language '.obs;
 
@@ -131,28 +133,47 @@ class RetailerController extends GetxController {
     return imageUrl;
   }
 
-  Future<void> addData() async {
+  Future<void> addData(BuildContext context) async {
+    Get.context!.loaderOverlay.show();
     String imageUrl = await uploadFile();
     FirebaseFirestore.instance.collection('shortnews').add({
       'description': newsDescription.text,
       'from': referenceController.text,
-      'img': imageUrl,
-      'language': selectedValue.value,
+      'img': imageBytes.value != null ? '' : imageUrl,
+      'language': selectedValue.value == "Hindi" ? 'hi' : "en",
       'news_link': referenceURLController.text,
       'takenby': 'value2',
       'title': titleController.text,
-      'video': 'value2',
+      'video': fileName.value != '' ? imageUrl : '',
       "newsType": selectedtype.value,
-      "news_id":'',
-    }).then((value)
-     {
-        Fluttertoast.showToast(
+      "news_id": '',
+    }).then((value) {
+      newsDescription.clear();
+      referenceController.clear();
+      referenceURLController.clear();
+      titleController.clear();
+      //selectedtype.value = 'Select News Type';
+      // selectedValue.value = 'Select Language';
+      fileName.value = '';
+      imageBytes.value = null;
+
+      Get.context!.loaderOverlay.hide();
+      Fluttertoast.showToast(
           msg: "Data added successfully",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 1,
           fontSize: 16.0);
-      print("Data added successfully with ID: ${value.id}");
+      showDialog(
+        context: context,
+        builder: (context) 
+        {
+          return Dialog(
+            child: CustomAlertDialog('Data added successfully'),
+          );
+        },
+      );
+      print("Data added successfully !");
     }).catchError((error) {
       print("Failed to add data: $error");
     });
