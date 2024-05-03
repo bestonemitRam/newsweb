@@ -136,46 +136,49 @@ class RetailerController extends GetxController {
   Future<void> addData(BuildContext context) async {
     Get.context!.loaderOverlay.show();
     String imageUrl = await uploadFile();
-    FirebaseFirestore.instance.collection('shortnews').add({
-      'description': newsDescription.text,
-      'from': referenceController.text,
-      'img': imageBytes.value != null ? '' : imageUrl,
-      'language': selectedValue.value == "Hindi" ? 'hi' : "en",
-      'news_link': referenceURLController.text,
-      'takenby': 'value2',
-      'title': titleController.text,
-      'video': fileName.value != '' ? imageUrl : '',
-      "newsType": selectedtype.value,
-      "news_id": '',
-    }).then((value) {
-      newsDescription.clear();
-      referenceController.clear();
-      referenceURLController.clear();
-      titleController.clear();
-      //selectedtype.value = 'Select News Type';
-      // selectedValue.value = 'Select Language';
-      fileName.value = '';
-      imageBytes.value = null;
+    print("jhdgfjhfg  ${imageUrl}");
 
-      Get.context!.loaderOverlay.hide();
-      Fluttertoast.showToast(
-          msg: "Data added successfully",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          timeInSecForIosWeb: 1,
-          fontSize: 16.0);
-      showDialog(
-        context: context,
-        builder: (context) 
-        {
-          return Dialog(
-            child: CustomAlertDialog('Data added successfully'),
-          );
-        },
-      );
-      print("Data added successfully !");
-    }).catchError((error) {
-      print("Failed to add data: $error");
-    });
+    if (imageUrl != null) {
+      FirebaseFirestore.instance.collection('shortnews').add({
+        'description': newsDescription.text,
+        'from': referenceController.text,
+        'img': imageBytes.value != null ? imageUrl : '',
+        'language': selectedValue.value == "Hindi" ? 'hi' : "en",
+        'news_link': referenceURLController.text,
+        'takenby': 'value2',
+        'title': titleController.text,
+        'video': fileName.value != '' ? imageUrl : '',
+        "newsType": selectedtype.value,
+        "news_id": '',
+      }).then((value) {
+        newsDescription.clear();
+        referenceController.clear();
+        referenceURLController.clear();
+        titleController.clear();
+        //selectedtype.value = 'Select News Type';
+        // selectedValue.value = 'Select Language';
+        fileName.value = '';
+        imageBytes.value = null;
+
+        Get.context!.loaderOverlay.hide();
+        Fluttertoast.showToast(
+            msg: "Data added successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            fontSize: 16.0);
+        showDialog(
+          context: context,
+          builder: (context) {
+            return Dialog(
+              child: CustomAlertDialog('Data added successfully'),
+            );
+          },
+        );
+        print("Data added successfully !");
+      }).catchError((error) {
+        print("Failed to add data: $error");
+      });
+    }
   }
 }
