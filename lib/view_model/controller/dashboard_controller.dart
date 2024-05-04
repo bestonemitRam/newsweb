@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -160,6 +161,8 @@ class RetailerController extends GetxController {
         fileName.value = '';
         imageBytes.value = null;
 
+        sendNotification(titleController.text, "notification", imageUrl);
+
         Get.context!.loaderOverlay.hide();
         Fluttertoast.showToast(
             msg: "Data added successfully",
@@ -179,6 +182,45 @@ class RetailerController extends GetxController {
       }).catchError((error) {
         print("Failed to add data: $error");
       });
+    }
+  }
+
+  Future<void> sendNotification(subject, title, image) async {
+    print("kjdhgfhj ${image}");
+    var uri = Uri.parse('https://fcm.googleapis.com/fcm/send');
+
+    String toParams = "/topics/" + 'shotnews';
+
+    final data = {
+      "notification": {"body": subject, "image": image, "title": title},
+      "priority": "high",
+      "data": {
+        "click_action": "FLUTTER_NOTIFICATION_CLICK",
+        "id": "1",
+        "status": "done",
+        "sound": 'default',
+        "screen": "shotnews",
+      },
+      "to": "${toParams}"
+    };
+
+    final headers = {
+      'content-type': 'application/json',
+      'Authorization':
+          'key=AAAA-xgVGVU:APA91bHokNAYK3ypaPe-XyZXiqEDwatxrYpO7VCFvJ-nAEiYzMI4WZ8yM8yNlGU-uvn0w_Ckz7fptXwNR8kYHt-HpT1hKaQG9YuLiku3E3fe4UEfsYgvKHhyx5ZH-Cfa2W80WZsQUOZT'
+    };
+
+    final response = await http.post(uri,
+        body: json.encode(data),
+        encoding: Encoding.getByName('utf-8'),
+        headers: headers);
+
+    if (response.statusCode == 200) {
+// on success do
+      print("true");
+    } else {
+// on failure do
+      print("false");
     }
   }
 }
