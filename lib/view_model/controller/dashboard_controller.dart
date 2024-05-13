@@ -137,7 +137,7 @@ class RetailerController extends GetxController {
   Future<void> addData(BuildContext context) async {
     Get.context!.loaderOverlay.show();
     String imageUrl = await uploadFile();
-    print("jhdgfjhfg  ${imageUrl}");
+    var now = DateTime.now();
 
     if (imageUrl != null) {
       FirebaseFirestore.instance.collection('shortnews').add({
@@ -151,35 +151,50 @@ class RetailerController extends GetxController {
         'video': fileName.value != '' ? imageUrl : '',
         "newsType": selectedtype.value,
         "news_id": '',
-      }).then((value) {
-        newsDescription.clear();
-        referenceController.clear();
-        referenceURLController.clear();
-        titleController.clear();
-        //selectedtype.value = 'Select News Type';
-        // selectedValue.value = 'Select Language';
-        fileName.value = '';
-        imageBytes.value = null;
+        'created_date': now,
+      }).then((DocumentReference documentReference) {
+        // Get the generated document ID
+        String documentId = documentReference.id;
+        print("Generated document ID: $documentId");
 
-        sendNotification(titleController.text, "notification", imageUrl);
+        FirebaseFirestore.instance
+            .collection('shortnews')
+            .doc(documentId)
+            .update({
+          'news_id': documentId,
+        }).then((_) {
+          newsDescription.clear();
+          referenceController.clear();
+          referenceURLController.clear();
+          titleController.clear();
+          //selectedtype.value = 'Select News Type';
+          // selectedValue.value = 'Select Language';
+          fileName.value = '';
+          imageBytes.value = null;
 
-        Get.context!.loaderOverlay.hide();
-        Fluttertoast.showToast(
-            msg: "Data added successfully",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            fontSize: 16.0);
-        showDialog(
-          context: context,
-          builder: (context) {
-            return Dialog(
-              child: CustomAlertDialog('Data added successfully'),
-            );
-          },
-        );
-        print("Data added successfully !");
+          sendNotification(titleController.text, "notification", imageUrl);
+
+          Get.context!.loaderOverlay.hide();
+          Fluttertoast.showToast(
+              msg: "Data added successfully",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              timeInSecForIosWeb: 1,
+              fontSize: 16.0);
+          showDialog(
+            context: context,
+            builder: (context) {
+              return Dialog(
+                child: CustomAlertDialog('Data added successfully'),
+              );
+            },
+          );
+          print("Data added successfully !");
+        }).catchError((error) {
+          print("Failed to add data: $error");
+        });
       }).catchError((error) {
+        // Error adding data to Firestore
         print("Failed to add data: $error");
       });
     }
